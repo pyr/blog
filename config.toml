@@ -1,0 +1,9 @@
+title = "Spootnik.org"
+baseURL = "http://spootnik.org/"
+languageCode = "en-us"
+PygmentsCodeFences = true
+
+[permalinks]
+post = "entries/:year/:month/:day/:slug"
+
+
