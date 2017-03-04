@@ -9,7 +9,6 @@ When handlers raise exceptions, a metric is sent out as well with the
 exception's message as description.
 
 ```python
-{{< highlight python >}}
 import socket
 import time
 import bernhard
@@ -44,14 +43,12 @@ def wrap_riemann(metric,
             return response
         return decorated_function
     return riemann_decorator
-{{</ highlight >}}
 ```
 
 Provided you have a [flask](http://flask.pocoo.org) app for instance you
 could then have use the wrapper in the following way:
 
 ```python
-{{< highlight python >}}
 app = Flask(__name__)
 riemann = bernhard.Client()
 
@@ -64,7 +61,6 @@ def list_users():
 @wrap_riemann('delete-user', client=riemann)
 def delete_users():
   # [...]
-{{</ highlight >}}
 ```
 
 In riemann we can easily massage these events to give us points worth
@@ -74,7 +70,6 @@ looking at:
 -   A per route and overall per second exception gauge
 
 ```clojure
-{{< highlight clojure >}}
 ;; start-up servers
 (tcp-server :host "0.0.0.0")
 (udp-server :host "0.0.0.0")
@@ -109,7 +104,6 @@ looking at:
         (rate 1 index graph))
       (with {:service "overall-exceptions"}
         (rate 1 index graph)))))
-{{</ highlight >}}
 ```
 
 Obviously this wrapper would work just as well for any python function.

@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+<head>
+  <title>2016-12-17-atomic-database.clj</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <style type="text/css">
+td.linenos { background-color: #f0f0f0; padding-right: 10px; }
+span.lineno { background-color: #f0f0f0; padding: 0 5px 0 5px; }
+pre { line-height: 125%; }
+body .hll { background-color: #ffffcc }
+body  { background: #f8f8f8; }
+body .c { color: #408080; font-style: italic } /* Comment */
+body .err { border: 1px solid #FF0000 } /* Error */
+body .k { color: #008000; font-weight: bold } /* Keyword */
+body .o { color: #666666 } /* Operator */
+body .ch { color: #408080; font-style: italic } /* Comment.Hashbang */
+body .cm { color: #408080; font-style: italic } /* Comment.Multiline */
+body .cp { color: #BC7A00 } /* Comment.Preproc */
+body .cpf { color: #408080; font-style: italic } /* Comment.PreprocFile */
+body .c1 { color: #408080; font-style: italic } /* Comment.Single */
+body .cs { color: #408080; font-style: italic } /* Comment.Special */
+body .gd { color: #A00000 } /* Generic.Deleted */
+body .ge { font-style: italic } /* Generic.Emph */
+body .gr { color: #FF0000 } /* Generic.Error */
+body .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+body .gi { color: #00A000 } /* Generic.Inserted */
+body .go { color: #888888 } /* Generic.Output */
+body .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+body .gs { font-weight: bold } /* Generic.Strong */
+body .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+body .gt { color: #0044DD } /* Generic.Traceback */
+body .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+body .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+body .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+body .kp { color: #008000 } /* Keyword.Pseudo */
+body .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+body .kt { color: #B00040 } /* Keyword.Type */
+body .m { color: #666666 } /* Literal.Number */
+body .s { color: #BA2121 } /* Literal.String */
+body .na { color: #7D9029 } /* Name.Attribute */
+body .nb { color: #008000 } /* Name.Builtin */
+body .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+body .no { color: #880000 } /* Name.Constant */
+body .nd { color: #AA22FF } /* Name.Decorator */
+body .ni { color: #999999; font-weight: bold } /* Name.Entity */
+body .ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+body .nf { color: #0000FF } /* Name.Function */
+body .nl { color: #A0A000 } /* Name.Label */
+body .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+body .nt { color: #008000; font-weight: bold } /* Name.Tag */
+body .nv { color: #19177C } /* Name.Variable */
+body .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+body .w { color: #bbbbbb } /* Text.Whitespace */
+body .mb { color: #666666 } /* Literal.Number.Bin */
+body .mf { color: #666666 } /* Literal.Number.Float */
+body .mh { color: #666666 } /* Literal.Number.Hex */
+body .mi { color: #666666 } /* Literal.Number.Integer */
+body .mo { color: #666666 } /* Literal.Number.Oct */
+body .sa { color: #BA2121 } /* Literal.String.Affix */
+body .sb { color: #BA2121 } /* Literal.String.Backtick */
+body .sc { color: #BA2121 } /* Literal.String.Char */
+body .dl { color: #BA2121 } /* Literal.String.Delimiter */
+body .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+body .s2 { color: #BA2121 } /* Literal.String.Double */
+body .se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+body .sh { color: #BA2121 } /* Literal.String.Heredoc */
+body .si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+body .sx { color: #008000 } /* Literal.String.Other */
+body .sr { color: #BB6688 } /* Literal.String.Regex */
+body .s1 { color: #BA2121 } /* Literal.String.Single */
+body .ss { color: #19177C } /* Literal.String.Symbol */
+body .bp { color: #008000 } /* Name.Builtin.Pseudo */
+body .fm { color: #0000FF } /* Name.Function.Magic */
+body .vc { color: #19177C } /* Name.Variable.Class */
+body .vg { color: #19177C } /* Name.Variable.Global */
+body .vi { color: #19177C } /* Name.Variable.Instance */
+body .vm { color: #19177C } /* Name.Variable.Magic */
+body .il { color: #666666 } /* Literal.Number.Integer.Long */
+
+  </style>
+</head>
+<body>
+  <h2>2016-12-17-atomic-database.clj</h2>
+  <p><a href="2016-12-17-atomic-database.clj">view raw</a></p>
+  
+
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="kd">ns </span><span class="nv">game.score</span>
+  <span class="s">&quot;Utilities to record and look up &quot;</span>
+  <span class="p">(</span><span class="ss">:require</span> <span class="p">[</span><span class="nv">clojure.edn</span> <span class="ss">:as</span> <span class="nv">edn</span><span class="p">]))</span>
+
+<span class="p">(</span><span class="kd">defn </span><span class="nv">make-score-db</span>
+  <span class="s">&quot;Build a database of high scores&quot;</span>
+  <span class="p">[]</span>
+  <span class="p">(</span><span class="nf">atom</span> <span class="nv">nil</span><span class="p">))</span>
+
+<span class="p">(</span><span class="k">def </span><span class="nv">compare-scores</span>
+  <span class="s">&quot;A function which keeps the highest numerical value.</span>
+<span class="s">   Handles nil previous values.&quot;</span>
+  <span class="p">(</span><span class="nf">fnil</span> <span class="nb">max </span><span class="mi">0</span><span class="p">))</span>
+
+<span class="p">(</span><span class="kd">defn </span><span class="nv">record-score!</span>
+  <span class="s">&quot;Record a score for user, store only if higher than</span>
+<span class="s">   previous or no previous score exists&quot;</span>
+  <span class="p">[</span><span class="nv">scores</span> <span class="nv">user</span> <span class="nv">score</span><span class="p">]</span>
+  <span class="p">(</span><span class="nf">swap!</span> <span class="nv">scores</span> <span class="nv">update</span> <span class="nv">user</span> <span class="nv">compare-scores</span> <span class="nv">score</span><span class="p">))</span>
+
+<span class="p">(</span><span class="kd">defn </span><span class="nv">user-high-score</span>
+  <span class="s">&quot;Lookup highest score for user, may yield nil&quot;</span>
+  <span class="p">[</span><span class="nv">scores</span> <span class="nv">user</span><span class="p">]</span>
+  <span class="p">(</span><span class="nb">get </span><span class="o">@</span><span class="nv">scores</span> <span class="nv">user</span><span class="p">))</span>
+
+<span class="p">(</span><span class="kd">defn </span><span class="nv">high-score</span>
+  <span class="s">&quot;Lookup absolute highest score, may yield nil</span>
+<span class="s">   when no scores have been recorded&quot;</span>
+  <span class="p">[</span><span class="nv">scores</span><span class="p">]</span>
+  <span class="p">(</span><span class="nb">last </span><span class="p">(</span><span class="nb">sort-by val </span><span class="o">@</span><span class="nv">scores</span><span class="p">)))</span>
+
+<span class="p">(</span><span class="kd">defn </span><span class="nv">dump-to-path</span>
+  <span class="s">&quot;Store a value&#39;s representation to a given path&quot;</span>
+  <span class="p">[</span><span class="nb">path </span><span class="nv">value</span><span class="p">]</span>
+  <span class="p">(</span><span class="nf">spit</span> <span class="nb">path </span><span class="p">(</span><span class="nb">pr-str </span><span class="nv">value</span><span class="p">)))</span>
+
+<span class="p">(</span><span class="kd">defn </span><span class="nv">load-from-path</span>
+  <span class="s">&quot;Load a value from its representation stored in a given path.</span>
+<span class="s">   When reading fails, yield nil&quot;</span>
+  <span class="p">[</span><span class="nv">path</span><span class="p">]</span>
+  <span class="p">(</span><span class="nf">try</span>
+    <span class="p">(</span><span class="nf">edn/read-string</span> <span class="p">(</span><span class="nb">slurp </span><span class="nv">path</span><span class="p">))</span>
+    <span class="p">(</span><span class="nf">catch</span> <span class="nv">Exception</span> <span class="nv">_</span><span class="p">)))</span>
+
+<span class="p">(</span><span class="kd">defn </span><span class="nv">persist-fn</span>
+  <span class="s">&quot;Yields an atom watch-fn that dumps new states to a path&quot;</span>
+  <span class="p">[</span><span class="nv">path</span><span class="p">]</span>
+  <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">state</span><span class="p">]</span>
+    <span class="p">(</span><span class="nf">dump-to-path</span> <span class="nb">path </span><span class="nv">state</span><span class="p">)))</span>
+
+<span class="p">(</span><span class="kd">defn </span><span class="nv">file-backed-atom</span>
+   <span class="s">&quot;An atom that loads its initial state from a file and persists each new state</span>
+<span class="s">    to the same path&quot;</span>
+   <span class="p">[</span><span class="nv">path</span><span class="p">]</span>
+   <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">init</span>  <span class="p">(</span><span class="nf">load-from-path</span> <span class="nv">path</span><span class="p">)</span>
+         <span class="nv">state</span> <span class="p">(</span><span class="nf">atom</span> <span class="nv">init</span><span class="p">)]</span>
+     <span class="p">(</span><span class="nf">add-watch</span> <span class="nv">state</span> <span class="ss">:persist-watcher</span> <span class="p">(</span><span class="nf">persist-fn</span> <span class="nv">path</span><span class="p">))</span>
+     <span class="nv">state</span><span class="p">))</span>
+
+<span class="p">(</span><span class="nf">comment</span>
+  <span class="p">(</span><span class="k">def </span><span class="nv">scores</span> <span class="p">(</span><span class="nf">file-backed-atom</span> <span class="s">&quot;/tmp/scores.db&quot;</span><span class="p">))</span>
+  <span class="p">(</span><span class="nf">high-score</span> <span class="nv">scores</span><span class="p">)</span>         <span class="c1">;; =&gt; nil</span>
+  <span class="p">(</span><span class="nf">user-high-score</span> <span class="nv">scores</span> <span class="ss">:a</span><span class="p">)</span> <span class="c1">;; =&gt; nil</span>
+  <span class="p">(</span><span class="nf">record-score!</span> <span class="nv">scores</span> <span class="ss">:a</span> <span class="mi">2</span><span class="p">)</span> <span class="c1">;; =&gt; {:a 2}</span>
+  <span class="p">(</span><span class="nf">record-score!</span> <span class="nv">scores</span> <span class="ss">:b</span> <span class="mi">3</span><span class="p">)</span> <span class="c1">;; =&gt; {:a 2 :b 3}</span>
+  <span class="p">(</span><span class="nf">record-score!</span> <span class="nv">scores</span> <span class="ss">:b</span> <span class="mi">1</span><span class="p">)</span> <span class="c1">;; =&gt; {:a 2 :b 3}</span>
+  <span class="p">(</span><span class="nf">record-score!</span> <span class="nv">scores</span> <span class="ss">:a</span> <span class="mi">4</span><span class="p">)</span> <span class="c1">;; =&gt; {:a 4 :b 3}</span>
+  <span class="p">(</span><span class="nf">user-high-score</span> <span class="nv">scores</span> <span class="ss">:a</span><span class="p">)</span> <span class="c1">;; =&gt; 4</span>
+  <span class="p">(</span><span class="nf">high-score</span> <span class="nv">scores</span><span class="p">)</span>         <span class="c1">;; =&gt; [:a 4]</span>
+  <span class="p">)</span>
+</pre></div>
+</body>
+</html>

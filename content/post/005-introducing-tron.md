@@ -14,7 +14,7 @@ replacing CRON's C which stands for command - as in: command run on - with a T f
 Here is a short excerpt of what it can do:
 
 ```
-{{< highlight clojure >}}(ns sandbox
+(ns sandbox
   (:require tron))
 
 (defn- periodic [] (println "periodic"))
@@ -27,7 +27,7 @@ Here is a short excerpt of what it can do:
 (tron/periodically :foo periodic 1000)
 
 ;; Cancel the periodic run 5 seconds from now
-(tron/once #(tron/cancel :foo) 5000){{< /highlight >}}
+(tron/once #(tron/cancel :foo) 5000)
 ```
 
 The code is hosted on github: https://github.com/pyr/tron, the full

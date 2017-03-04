@@ -31,7 +31,6 @@ small script which extracts hash tags from tweets and publishes them to
 a local riemann instance:
 
 ```ruby
-{{< highlight ruby >}}
 require 'tweetstream'
 require 'riemann/client'
 
@@ -50,7 +49,6 @@ TweetStream::Client.new.sample do |status|
     riemann << {service: tag, metric: 1.0, tags: ["twitter"], ttl: 3600}
   end
 end
-{{</ highlight >}}
 ```
 
 For each tweet in the firehose we emit a riemann event tagged with
@@ -75,12 +73,10 @@ With recent changes in riemann's `top` function we can use this simple
 configuration to compute trends:
 
 ```clojure
-{{< highlight clojure >}}
 (let [store    (index)
       trending (top 10 (juxt :metric :time) (tag "top" store) store)]
   (streams
     (by :service (moving-time-window 3600 (smap folds/sum trending)))))
-{{</ highlight >}}
 ```
 
 Let's break down what happens in this configuration.
@@ -114,13 +110,11 @@ the index to retrieve. With the ruby `riemann-client` gem we just
 retrieve the indexed elements tagged with **top**:
 
 ```ruby
-{{< highlight ruby >}}
 require 'riemann/client'
 require 'pp'
 
 client = Riemann::Client.new
 pp client['tagged "top"']
-{{</ highlight >}}
 ```
 
 ### Going further
@@ -133,20 +127,18 @@ done on this output.
 The skeleton of such a function could be:
 
 ```clojure
-{{< highlight clojure >}}
 (def decay-factor xxx)
 
 (defn decaying [{:keys [metric time] :as event}]
   (let [ (unix-time)]
     (- metric (* ((unix-time) - time) decay-factor))))
-{{</ highlight >}}
 ```
 
 This would allow expiring old trends quicker.
 
 The full code for this example is available at:
 
-<https://gist.github.com/pyr/8314313>
+[/files/2014-01-14-twitter-trending.html](/files/2014-01-14-twitter-trending.html)
 
 ### Other applications
 

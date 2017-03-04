@@ -3,15 +3,15 @@
   <h1>Pierre-Yves Ritschard</h1>
   <h2>Random ramblings on infrastructure and functional development</h2>
     <ul class="header-menu">
-      <li><a href="https://github.com/pyr">github</a></li>
-      <li><a href="https://twitter.com/pyr">twitter</a></li>
-      <li><a href="mailto:pyr@spootnik.org">email</a></li>
+      <li><a href="https://github.com/pyr">Github</a></li>
+      <li><a href="https://twitter.com/pyr">Twitter</a></li>
+      <li><a href="mailto:pyr@spootnik.org">Email</a></li>
+      <li><a href="/index.xml">Atom feed</a></li>
     </ul>
 </header>
 
 <div class="content">
   <h2>Articles</h2>
-  <p>The atom feed is over <a href="/index.xml">here</a>.</p>
   <ul class="all">
     {{ range .Data.Pages.ByPublishDate }}
     {{ $link := .Permalink | relURL | replaceRE "^/" "" }}

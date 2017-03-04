@@ -12,33 +12,27 @@ standard and battle tested.
 A standard call to a JSON get in JQuery looks like this:
 
 ```javascript
-{{< highlight javascript >}}
 $.getJSON('ajax/test.json', function(data) {
    doSomethingWith(data);
 });
-{{</ highlight >}}
 ```
 
 Which is really a call to:
 
 ```javascript
-{{< highlight javascript >}}
 $.ajax({
   url: 'ajax/test.json',
   dataType: 'json',
   success: function(data) { doSomethingWith(data); }
 });
-{{</ highlight >}}
 ```
 
 Now when using `jayq` this would translate to:
 
 ```clojure
-{{< highlight clojure >}}
 (ajax "ajax/test.json"
       {:dataType "json"
        :success  (fn [data] (do-something-with data))})
-{{</ highlight >}}
 ```
 
 This is just as simple, but a bit lacking in terms of readability, with
@@ -46,19 +40,16 @@ a simple, add to this that you might want to check the `done` status of
 the resulting future and you end up with:
 
 ```clojure
-{{< highlight clojure >}}
 (let [ftr (ajax "ajax/test.json"
                 {:dataType "json"
                  :success  (fn [data] (do-something-with data))})]
   (.done ftr (fn [] (refresh-view))))
-{{</ highlight >}}
 ```
 
 Thankfully, with macros we can make this much prettier, with these two
 simple macros:
 
 ```clojure
-{{< highlight clojure >}}
 (defmacro when-done
   [ftr & body]
   `(.done ~ftr (fn [] ~@body)))
@@ -69,16 +60,13 @@ simple macros:
     ~url
     {:dataType "json"
      :success  (fn [data#] (let [~sym (cljs.core/js->clj data#)] ~@body))}))
-{{</ highlight >}}
 ```
 
 We can now write:
 
 ```clojure
-{{< highlight clojure >}}
 (when-done (with-json data "ajax/test.json" (do-something-with data))
            (refresh-view))
-{{</ highlight >}}
 ```
 
 Which clearly turns down the suck on the overall aspect of your callback

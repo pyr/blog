@@ -11,7 +11,7 @@ interested, go follow [@pariscassa](https://twitter.com/pariscassa)).
 While not diving too deep, I tried to give a battlefield overview of how
 we came to the decision to go for cassandra, what we do with it and a
 few tips should you choose it, very much in the same vein than my
-previous post on clojure[^1]
+[previous post on clojure](/entries/2012/07/04/another-year-of-clojure).
 
 Here are the slides for the talk:
 
@@ -22,4 +22,3 @@ in french, recorded and streamed thanks to google plus hangouts (which
 is quite impressive I have to say). If you grok french, the video can be
 found here: <http://www.youtube.com/watch?v=Uwt-KF7eVOY#t=32m06>
 
-[^1]: <http://spootnik.org/entries/2012/07/04_another-year-of-clojure.html>

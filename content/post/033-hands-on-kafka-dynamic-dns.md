@@ -2,7 +2,7 @@
 #+date: 2015-04-23
 
 I [recently
-wrote](http://spootnik.org/entries/2015/03/10_simple-materialized-views-in-kafka-and-clojure.html)
+wrote](/entries/2015/03/10/simple-materialized-views-in-kafka-and-clojure)
 about kafka [log
 compaction](https://cwiki.apache.org/confluence/display/KAFKA/Log+Compaction)
 and the use cases it allows. The article focused on simple key-value

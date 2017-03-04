@@ -169,5 +169,5 @@ function:
 (high-score scores)         ;; => [:a 4]
 ```
 
-The code presented here is available at
-<https://gist.github.com/2a32f64a308e5691ad96ef71030a6dfe>
+The code presented here is available [here](/files/2016-12-17-atomic-database.html)
+

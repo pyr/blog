@@ -1,0 +1,249 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+<head>
+  <title>2014-11-06-clojure-interfaces.clj</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <style type="text/css">
+td.linenos { background-color: #f0f0f0; padding-right: 10px; }
+span.lineno { background-color: #f0f0f0; padding: 0 5px 0 5px; }
+pre { line-height: 125%; }
+body .hll { background-color: #ffffcc }
+body  { background: #f8f8f8; }
+body .c { color: #408080; font-style: italic } /* Comment */
+body .err { border: 1px solid #FF0000 } /* Error */
+body .k { color: #008000; font-weight: bold } /* Keyword */
+body .o { color: #666666 } /* Operator */
+body .ch { color: #408080; font-style: italic } /* Comment.Hashbang */
+body .cm { color: #408080; font-style: italic } /* Comment.Multiline */
+body .cp { color: #BC7A00 } /* Comment.Preproc */
+body .cpf { color: #408080; font-style: italic } /* Comment.PreprocFile */
+body .c1 { color: #408080; font-style: italic } /* Comment.Single */
+body .cs { color: #408080; font-style: italic } /* Comment.Special */
+body .gd { color: #A00000 } /* Generic.Deleted */
+body .ge { font-style: italic } /* Generic.Emph */
+body .gr { color: #FF0000 } /* Generic.Error */
+body .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+body .gi { color: #00A000 } /* Generic.Inserted */
+body .go { color: #888888 } /* Generic.Output */
+body .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+body .gs { font-weight: bold } /* Generic.Strong */
+body .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+body .gt { color: #0044DD } /* Generic.Traceback */
+body .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+body .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+body .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+body .kp { color: #008000 } /* Keyword.Pseudo */
+body .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+body .kt { color: #B00040 } /* Keyword.Type */
+body .m { color: #666666 } /* Literal.Number */
+body .s { color: #BA2121 } /* Literal.String */
+body .na { color: #7D9029 } /* Name.Attribute */
+body .nb { color: #008000 } /* Name.Builtin */
+body .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+body .no { color: #880000 } /* Name.Constant */
+body .nd { color: #AA22FF } /* Name.Decorator */
+body .ni { color: #999999; font-weight: bold } /* Name.Entity */
+body .ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+body .nf { color: #0000FF } /* Name.Function */
+body .nl { color: #A0A000 } /* Name.Label */
+body .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+body .nt { color: #008000; font-weight: bold } /* Name.Tag */
+body .nv { color: #19177C } /* Name.Variable */
+body .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+body .w { color: #bbbbbb } /* Text.Whitespace */
+body .mb { color: #666666 } /* Literal.Number.Bin */
+body .mf { color: #666666 } /* Literal.Number.Float */
+body .mh { color: #666666 } /* Literal.Number.Hex */
+body .mi { color: #666666 } /* Literal.Number.Integer */
+body .mo { color: #666666 } /* Literal.Number.Oct */
+body .sa { color: #BA2121 } /* Literal.String.Affix */
+body .sb { color: #BA2121 } /* Literal.String.Backtick */
+body .sc { color: #BA2121 } /* Literal.String.Char */
+body .dl { color: #BA2121 } /* Literal.String.Delimiter */
+body .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+body .s2 { color: #BA2121 } /* Literal.String.Double */
+body .se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+body .sh { color: #BA2121 } /* Literal.String.Heredoc */
+body .si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+body .sx { color: #008000 } /* Literal.String.Other */
+body .sr { color: #BB6688 } /* Literal.String.Regex */
+body .s1 { color: #BA2121 } /* Literal.String.Single */
+body .ss { color: #19177C } /* Literal.String.Symbol */
+body .bp { color: #008000 } /* Name.Builtin.Pseudo */
+body .fm { color: #0000FF } /* Name.Function.Magic */
+body .vc { color: #19177C } /* Name.Variable.Class */
+body .vg { color: #19177C } /* Name.Variable.Global */
+body .vi { color: #19177C } /* Name.Variable.Instance */
+body .vm { color: #19177C } /* Name.Variable.Magic */
+body .il { color: #666666 } /* Literal.Number.Integer.Long */
+
+  </style>
+</head>
+<body>
+  <h2>2014-11-06-clojure-interfaces.clj</h2>
+  <p><a href="2014-11-06-clojure-interfaces.clj">view raw</a></p>
+
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="kd">ns </span><span class="nv">redis.transient</span>
+  <span class="p">(</span><span class="ss">:refer-clojure</span> <span class="ss">:exclude</span> <span class="p">[</span><span class="nv">read-string</span><span class="p">])</span>
+  <span class="p">(</span><span class="ss">:require</span> <span class="p">[</span><span class="nv">clojure.edn</span> <span class="ss">:refer</span> <span class="p">[</span><span class="nv">read-string</span><span class="p">]])</span>
+  <span class="p">(</span><span class="ss">:require</span> <span class="p">[</span><span class="nv">taoensso.carmine</span> <span class="ss">:as</span> <span class="nv">r</span> <span class="ss">:refer</span> <span class="p">[</span><span class="nv">wcar</span><span class="p">]]))</span>
+
+<span class="p">(</span><span class="kd">defn </span><span class="nv">-&gt;mapentry</span>
+  <span class="p">[</span><span class="nv">k</span> <span class="nv">v</span><span class="p">]</span>
+  <span class="o">^</span><span class="p">{</span><span class="ss">:type</span> <span class="ss">:redis</span> <span class="ss">:prefix</span> <span class="s">&quot;[&quot;</span> <span class="ss">:suffix</span> <span class="s">&quot;]&quot;</span><span class="p">}</span>
+  <span class="p">(</span><span class="nf">reify</span>
+    <span class="nv">clojure.lang.Indexed</span>
+    <span class="p">(</span><span class="nb">nth </span><span class="p">[</span><span class="nv">this</span> <span class="nv">i</span><span class="p">]</span> <span class="p">(</span><span class="nb">nth </span><span class="p">[</span><span class="nv">k</span> <span class="nv">v</span><span class="p">]</span> <span class="nv">i</span><span class="p">))</span>
+    <span class="p">(</span><span class="nb">nth </span><span class="p">[</span><span class="nv">this</span> <span class="nv">i</span> <span class="nv">default</span><span class="p">]</span> <span class="p">(</span><span class="nb">nth </span><span class="p">[</span><span class="nv">k</span> <span class="nv">v</span><span class="p">]</span> <span class="nv">i</span> <span class="nv">default</span><span class="p">))</span>
+    <span class="nv">clojure.lang.Seqable</span>
+    <span class="p">(</span><span class="nb">seq </span><span class="p">[</span><span class="nv">this</span><span class="p">]</span> <span class="p">(</span><span class="nb">list </span><span class="nv">k</span> <span class="nv">v</span><span class="p">))</span>
+    <span class="nv">clojure.lang.Counted</span>
+    <span class="p">(</span><span class="nb">count </span><span class="p">[</span><span class="nv">this</span><span class="p">]</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="nv">clojure.lang.IMapEntry</span>
+    <span class="p">(</span><span class="nf">getKey</span> <span class="p">[</span><span class="nv">this</span><span class="p">]</span> <span class="nv">k</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">getValue</span> <span class="p">[</span><span class="nv">this</span><span class="p">]</span> <span class="nv">v</span><span class="p">)</span>
+    <span class="p">(</span><span class="nb">key </span><span class="p">[</span><span class="nv">this</span><span class="p">]</span> <span class="nv">k</span><span class="p">)</span>
+    <span class="p">(</span><span class="nb">val </span><span class="p">[</span><span class="nv">this</span><span class="p">]</span> <span class="nv">v</span><span class="p">)))</span>
+
+<span class="p">(</span><span class="kd">defn </span><span class="nv">hash-&gt;transient</span>
+  <span class="p">[</span><span class="nv">spec</span> <span class="nv">k</span><span class="p">]</span>
+  <span class="o">^</span><span class="p">{</span><span class="ss">:type</span> <span class="ss">:redis</span> <span class="ss">:prefix</span> <span class="s">&quot;{&quot;</span> <span class="ss">:suffix</span> <span class="s">&quot;}&quot;</span> <span class="ss">:sep</span> <span class="s">&quot;,&quot;</span> <span class="ss">:tuple?</span> <span class="nv">true</span><span class="p">}</span>
+  <span class="p">(</span><span class="nf">reify</span>
+    <span class="nv">clojure.lang.ILookup</span>
+    <span class="p">(</span><span class="nf">valAt</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">subk</span><span class="p">]</span>
+      <span class="p">(</span><span class="nb">when-let </span><span class="p">[</span><span class="nv">res</span> <span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/hget</span> <span class="nv">k</span> <span class="p">(</span><span class="nb">pr-str </span><span class="nv">subk</span><span class="p">)))]</span>
+        <span class="p">(</span><span class="nf">read-string</span> <span class="nv">res</span><span class="p">)))</span>
+    <span class="p">(</span><span class="nf">valAt</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">subk</span> <span class="nv">default</span><span class="p">]</span>
+      <span class="p">(</span><span class="nb">or </span><span class="p">(</span><span class="nf">.valAt</span> <span class="nv">this</span> <span class="nv">subk</span><span class="p">)</span> <span class="nv">default</span><span class="p">))</span>
+    <span class="nv">clojure.lang.ITransientMap</span>
+    <span class="p">(</span><span class="nb">assoc </span><span class="p">[</span><span class="nv">this</span> <span class="nv">subk</span> <span class="nv">v</span><span class="p">]</span>
+      <span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/hset</span> <span class="nv">k</span> <span class="p">(</span><span class="nb">pr-str </span><span class="nv">subk</span><span class="p">)</span> <span class="p">(</span><span class="nb">pr-str </span><span class="nv">v</span><span class="p">)))</span>
+      <span class="nv">this</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">without</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">subk</span><span class="p">]</span>
+      <span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/hdel</span> <span class="nv">k</span> <span class="p">(</span><span class="nb">pr-str </span><span class="nv">subk</span><span class="p">)))</span>
+      <span class="nv">this</span><span class="p">)</span>
+    <span class="nv">clojure.lang.IFn</span>
+    <span class="p">(</span><span class="nf">invoke</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">subk</span><span class="p">]</span>
+      <span class="p">(</span><span class="nf">.valAt</span> <span class="nv">this</span> <span class="nv">subk</span><span class="p">))</span>
+    <span class="nv">clojure.lang.Counted</span>
+    <span class="p">(</span><span class="nb">count </span><span class="p">[</span><span class="nv">this</span><span class="p">]</span>
+      <span class="p">(</span><span class="nb">count </span><span class="p">(</span><span class="nf">partition</span> <span class="mi">2</span> <span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/hgetall</span> <span class="nv">k</span><span class="p">)))))</span>
+    <span class="nv">clojure.lang.Seqable</span>
+    <span class="p">(</span><span class="nb">seq </span><span class="p">[</span><span class="nv">this</span><span class="p">]</span>
+      <span class="p">(</span><span class="nb">for </span><span class="p">[[</span><span class="nv">k</span> <span class="nv">v</span><span class="p">]</span> <span class="p">(</span><span class="nf">partition</span> <span class="mi">2</span> <span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/hgetall</span> <span class="nv">k</span><span class="p">)))]</span>
+        <span class="p">(</span><span class="nf">-&gt;mapentry</span> <span class="p">(</span><span class="nf">read-string</span> <span class="nv">k</span><span class="p">)</span>
+                    <span class="p">(</span><span class="nf">read-string</span> <span class="nv">v</span><span class="p">))))))</span>
+
+<span class="p">(</span><span class="kd">defn </span><span class="nv">list-&gt;transient</span>
+  <span class="p">[</span><span class="nv">spec</span> <span class="nv">k</span><span class="p">]</span>
+  <span class="o">^</span><span class="p">{</span><span class="ss">:type</span> <span class="ss">:redis</span> <span class="ss">:prefix</span> <span class="s">&quot;[&quot;</span> <span class="ss">:suffix</span> <span class="s">&quot;]&quot;</span><span class="p">}</span>
+  <span class="p">(</span><span class="nf">reify</span>
+    <span class="nv">clojure.lang.Counted</span>
+    <span class="p">(</span><span class="nb">count </span><span class="p">[</span><span class="nv">this</span><span class="p">]</span>
+      <span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/llen</span> <span class="nv">k</span><span class="p">)))</span>
+    <span class="nv">clojure.lang.Seqable</span>
+    <span class="p">(</span><span class="nb">seq </span><span class="p">[</span><span class="nv">this</span><span class="p">]</span>
+      <span class="p">(</span><span class="nb">map </span><span class="nv">read-string</span> <span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/lrange</span> <span class="nv">k</span> <span class="mi">0</span> <span class="mi">-1</span><span class="p">))))</span>
+    <span class="nv">clojure.lang.ITransientCollection</span>
+    <span class="p">(</span><span class="nb">conj </span><span class="p">[</span><span class="nv">this</span> <span class="nv">v</span><span class="p">]</span>
+      <span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/lpush</span> <span class="nv">k</span> <span class="p">(</span><span class="nb">pr-str </span><span class="nv">v</span><span class="p">)))</span>
+      <span class="nv">this</span><span class="p">)</span>
+    <span class="nv">clojure.lang.ITransientVector</span>
+    <span class="p">(</span><span class="nf">assocN</span> <span class="p">[</span><span class="nv">this</span> <span class="nb">index </span><span class="nv">v</span><span class="p">]</span>
+      <span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/lset</span> <span class="nv">k</span> <span class="nb">index </span><span class="nv">v</span><span class="p">))</span>
+      <span class="nv">this</span><span class="p">)</span>
+    <span class="p">(</span><span class="nb">pop </span><span class="p">[</span><span class="nv">this</span><span class="p">]</span>
+      <span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/lpop</span> <span class="nv">k</span><span class="p">))</span>
+      <span class="nv">this</span><span class="p">)))</span>
+
+<span class="p">(</span><span class="kd">defn </span><span class="nv">set-&gt;transient</span>
+  <span class="p">[</span><span class="nv">spec</span> <span class="nv">k</span><span class="p">]</span>
+  <span class="o">^</span><span class="p">{</span><span class="ss">:type</span> <span class="ss">:redis</span> <span class="ss">:prefix</span> <span class="s">&quot;#{&quot;</span> <span class="ss">:suffix</span> <span class="s">&quot;}&quot;</span><span class="p">}</span>
+  <span class="p">(</span><span class="nf">reify</span>
+    <span class="nv">clojure.lang.Counted</span>
+    <span class="p">(</span><span class="nb">count </span><span class="p">[</span><span class="nv">this</span><span class="p">]</span>
+      <span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/scard</span> <span class="nv">k</span><span class="p">)))</span>
+    <span class="nv">clojure.lang.Seqable</span>
+    <span class="p">(</span><span class="nb">seq </span><span class="p">[</span><span class="nv">this</span><span class="p">]</span>
+      <span class="p">(</span><span class="nb">map </span><span class="nv">read-string</span> <span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/smembers</span> <span class="nv">k</span><span class="p">))))</span>
+    <span class="nv">clojure.lang.ITransientCollection</span>
+    <span class="p">(</span><span class="nb">conj </span><span class="p">[</span><span class="nv">this</span> <span class="nv">v</span><span class="p">]</span>
+      <span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/sadd</span> <span class="nv">k</span> <span class="p">(</span><span class="nb">pr-str </span><span class="nv">v</span><span class="p">)))</span>
+      <span class="nv">this</span><span class="p">)</span>
+    <span class="nv">clojure.lang.ITransientSet</span>
+    <span class="p">(</span><span class="nf">disjoin</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">v</span><span class="p">]</span>
+      <span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/srem</span> <span class="nv">k</span> <span class="p">(</span><span class="nb">pr-str </span><span class="nv">v</span><span class="p">)))</span>
+      <span class="nv">this</span><span class="p">)</span>
+    <span class="nv">clojure.lang.IFn</span>
+    <span class="p">(</span><span class="nf">invoke</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">member</span><span class="p">]</span>
+      <span class="p">(</span><span class="nb">when </span><span class="p">(</span><span class="nf">.contains</span> <span class="nv">this</span> <span class="nv">member</span><span class="p">)</span>
+        <span class="nv">member</span><span class="p">))</span>
+    <span class="p">(</span><span class="nf">contains</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">v</span><span class="p">]</span>
+      <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">member</span> <span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/sismember</span> <span class="nv">k</span> <span class="p">(</span><span class="nb">pr-str </span><span class="nv">v</span><span class="p">)))]</span>
+        <span class="p">(</span><span class="nb">pos? </span><span class="nv">member</span><span class="p">)))</span>
+    <span class="p">(</span><span class="nb">get </span><span class="p">[</span><span class="nv">this</span> <span class="nv">v</span><span class="p">]</span>
+      <span class="p">(</span><span class="nb">when </span><span class="p">(</span><span class="nf">.contains</span> <span class="nv">this</span> <span class="nv">v</span><span class="p">)</span>
+        <span class="nv">v</span><span class="p">))))</span>
+
+<span class="p">(</span><span class="kd">defn </span><span class="nv">instance-&gt;transient</span>
+  <span class="p">[</span><span class="nv">spec</span><span class="p">]</span>
+  <span class="o">^</span><span class="p">{</span><span class="ss">:type</span> <span class="ss">:redis</span> <span class="ss">:prefix</span> <span class="s">&quot;{&quot;</span> <span class="ss">:suffix</span> <span class="s">&quot;}&quot;</span> <span class="ss">:sep</span> <span class="s">&quot;,&quot;</span> <span class="ss">:tuple?</span> <span class="nv">true</span><span class="p">}</span>
+  <span class="p">(</span><span class="nf">reify</span>
+    <span class="nv">clojure.lang.ILookup</span>
+    <span class="p">(</span><span class="nf">valAt</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">k</span><span class="p">]</span>
+      <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">k</span>    <span class="p">(</span><span class="nb">pr-str </span><span class="nv">k</span><span class="p">)</span>
+            <span class="nv">type</span> <span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/type</span> <span class="nv">k</span><span class="p">))]</span>
+        <span class="p">(</span><span class="nf">condp</span> <span class="nb">= </span><span class="nv">type</span>
+          <span class="s">&quot;string&quot;</span> <span class="p">(</span><span class="nf">read-string</span> <span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/get</span> <span class="nv">k</span><span class="p">)))</span>
+          <span class="s">&quot;hash&quot;</span>   <span class="p">(</span><span class="nf">hash-&gt;transient</span> <span class="nv">spec</span> <span class="nv">k</span><span class="p">)</span>
+          <span class="s">&quot;list&quot;</span>   <span class="p">(</span><span class="nf">list-&gt;transient</span> <span class="nv">spec</span> <span class="nv">k</span><span class="p">)</span>
+          <span class="s">&quot;set&quot;</span>    <span class="p">(</span><span class="nf">set-&gt;transient</span> <span class="nv">spec</span> <span class="nv">k</span><span class="p">)</span>
+          <span class="s">&quot;none&quot;</span>   <span class="nv">nil</span>
+          <span class="p">(</span><span class="nf">throw</span> <span class="p">(</span><span class="nf">ex-info</span> <span class="s">&quot;unsupported redis type&quot;</span> <span class="p">{</span><span class="ss">:type</span> <span class="nv">type</span><span class="p">})))))</span>
+    <span class="p">(</span><span class="nf">valAt</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">k</span> <span class="nv">default</span><span class="p">]</span>
+      <span class="p">(</span><span class="nb">or </span><span class="p">(</span><span class="nf">.valAt</span> <span class="nv">this</span> <span class="nv">k</span><span class="p">)</span> <span class="nv">default</span><span class="p">))</span>
+    <span class="nv">clojure.lang.Counted</span>
+    <span class="p">(</span><span class="nb">count </span><span class="p">[</span><span class="nv">this</span><span class="p">]</span>
+      <span class="p">(</span><span class="nb">count </span><span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/keys</span> <span class="s">&quot;*&quot;</span><span class="p">))))</span>
+    <span class="nv">clojure.lang.Seqable</span>
+    <span class="p">(</span><span class="nb">seq </span><span class="p">[</span><span class="nv">this</span><span class="p">]</span>
+      <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nb">keys </span><span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/keys</span> <span class="s">&quot;*&quot;</span><span class="p">))]</span>
+        <span class="p">(</span><span class="nb">for </span><span class="p">[</span><span class="nv">k</span> <span class="nv">keys</span><span class="p">]</span>
+          <span class="p">(</span><span class="nf">-&gt;mapentry</span> <span class="p">(</span><span class="nf">read-string</span> <span class="nv">k</span><span class="p">)</span> <span class="p">(</span><span class="nf">.valAt</span> <span class="nv">this</span> <span class="p">(</span><span class="nf">read-string</span> <span class="nv">k</span><span class="p">))))))</span>
+    <span class="nv">clojure.lang.ITransientMap</span>
+    <span class="p">(</span><span class="nb">assoc </span><span class="p">[</span><span class="nv">this</span> <span class="nv">k</span> <span class="nv">v</span><span class="p">]</span>
+      <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">k</span> <span class="p">(</span><span class="nb">pr-str </span><span class="nv">k</span><span class="p">)]</span>
+        <span class="p">(</span><span class="nf">cond</span>
+         <span class="p">(</span><span class="nf">set?</span> <span class="nv">v</span><span class="p">)</span>        <span class="p">(</span><span class="nb">doseq </span><span class="p">[</span><span class="nv">member</span> <span class="nv">v</span><span class="p">]</span>
+                           <span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/sadd</span> <span class="nv">k</span> <span class="p">(</span><span class="nb">pr-str </span><span class="nv">member</span><span class="p">))))</span>
+         <span class="p">(</span><span class="nb">map? </span><span class="nv">v</span><span class="p">)</span>        <span class="p">(</span><span class="nb">doseq </span><span class="p">[[</span><span class="nv">subk</span> <span class="nv">v</span><span class="p">]</span> <span class="nv">v</span><span class="p">]</span>
+                           <span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/hset</span> <span class="nv">k</span> <span class="p">(</span><span class="nb">pr-str </span><span class="nv">subk</span><span class="p">)</span> <span class="p">(</span><span class="nb">pr-str </span><span class="nv">v</span><span class="p">))))</span>
+         <span class="p">(</span><span class="nf">sequential?</span> <span class="nv">v</span><span class="p">)</span> <span class="p">(</span><span class="nb">doseq </span><span class="p">[</span><span class="nv">e</span> <span class="nv">v</span><span class="p">]</span>
+                           <span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/lpush</span> <span class="nv">k</span> <span class="p">(</span><span class="nb">pr-str </span><span class="nv">e</span><span class="p">))))</span>
+         <span class="ss">:else</span>           <span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/set</span> <span class="nv">k</span> <span class="p">(</span><span class="nb">pr-str </span><span class="nv">v</span><span class="p">)))))</span>
+      <span class="nv">this</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">without</span> <span class="p">[</span><span class="nv">this</span> <span class="nv">k</span><span class="p">]</span>
+      <span class="p">(</span><span class="nf">wcar</span> <span class="nv">spec</span> <span class="p">(</span><span class="nf">r/del</span> <span class="p">(</span><span class="nb">pr-str </span><span class="nv">k</span><span class="p">)))</span>
+      <span class="nv">this</span><span class="p">)))</span>
+
+<span class="p">(</span><span class="kd">defmethod </span><span class="nv">print-method</span> <span class="ss">:redis</span>
+  <span class="p">[</span><span class="nv">obj</span> <span class="o">^</span><span class="nv">java.io.Writer</span> <span class="nv">writer</span><span class="p">]</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">[{</span><span class="ss">:keys</span> <span class="p">[</span><span class="nv">prefix</span> <span class="nv">suffix</span> <span class="nv">sep</span> <span class="nv">tuple?</span><span class="p">]}</span> <span class="p">(</span><span class="nb">meta </span><span class="nv">obj</span><span class="p">)]</span>
+    <span class="p">(</span><span class="nf">.write</span> <span class="nv">writer</span> <span class="nv">prefix</span><span class="p">)</span>
+    <span class="p">(</span><span class="nb">when </span><span class="p">(</span><span class="nb">pos? </span><span class="p">(</span><span class="nb">count </span><span class="nv">obj</span><span class="p">))</span>
+      <span class="p">(</span><span class="k">loop </span><span class="p">[[</span><span class="nv">item</span> <span class="o">&amp;</span> <span class="nv">items</span><span class="p">]</span> <span class="p">(</span><span class="nb">seq </span><span class="nv">obj</span><span class="p">)]</span>
+        <span class="p">(</span><span class="k">if </span><span class="nv">tuple?</span>
+          <span class="p">(</span><span class="nf">do</span>
+            <span class="p">(</span><span class="nf">print-method</span> <span class="p">(</span><span class="nb">key </span><span class="nv">item</span><span class="p">)</span> <span class="nv">writer</span><span class="p">)</span>
+            <span class="p">(</span><span class="nf">.write</span> <span class="nv">writer</span> <span class="s">&quot; &quot;</span><span class="p">)</span>
+            <span class="p">(</span><span class="nf">print-method</span> <span class="p">(</span><span class="nb">val </span><span class="nv">item</span><span class="p">)</span> <span class="nv">writer</span><span class="p">))</span>
+          <span class="p">(</span><span class="nf">print-method</span> <span class="nv">item</span> <span class="nv">writer</span><span class="p">))</span>
+        <span class="p">(</span><span class="nb">when </span><span class="p">(</span><span class="nb">seq </span><span class="nv">items</span><span class="p">)</span>
+          <span class="p">(</span><span class="nf">.write</span> <span class="nv">writer</span> <span class="p">(</span><span class="nb">str </span><span class="nv">sep</span>  <span class="s">&quot; &quot;</span><span class="p">))</span>
+          <span class="p">(</span><span class="nf">recur</span> <span class="nv">items</span><span class="p">))))</span>
+<span class="p">(</span><span class="nf">.write</span> <span class="nv">writer</span> <span class="nv">suffix</span><span class="p">)))</span>
+</pre></div>
+</body>
+</html>

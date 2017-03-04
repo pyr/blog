@@ -122,7 +122,6 @@ much like go (another more-concise-than-c system programming language).
 First, our main function:
 
 ```haskell
-{{< highlight haskell >}}
 main = do
   mainlog <- openlog "nginxpipe" [PID] DAEMON NOTICE
   updateGlobalLogger rootLoggerName (setHandlers [mainlog])
@@ -134,7 +133,6 @@ main = do
   ph <- runCommand "nginx"
   exit_code <- waitForProcess ph
   noticeM "nginxpipe" $ "nginx stopped with code: " ++ show exit_code
-{{</ highlight >}}
 ```
 
 We start by creating a log handler, then using it as our only log
@@ -159,29 +157,24 @@ To create this modified list which just map our input list with a simple
 function:
 
 ```haskell
-{{< highlight haskell >}}
 is_colon x = x == ':'
 get_logname path = (ltype, p) where (ltype, (_:p)) = break is_colon path
-{{</ highlight >}}
 ```
 
 Next up is the pipe creation, since Haskell has no loop we use tail
 recursion to iterate on the list of tuples:
 
 ```haskell
-{{< highlight haskell >}}
 mk_pipes :: [(String,String)] -> IO ()
 mk_pipes (pipe:pipes) = do
   mk_pipe pipe
   mk_pipes pipes
 mk_pipes [] = return ()
-{{</ highlight >}}
 ```
 
 The bulk of work happens in the `mk_pipe` function:
 
 ```haskell
-{{< highlight haskell >}}
 mk_pipe :: (String,String) -> IO ()
 mk_pipe (ltype,path) = do
   safe_remove path
@@ -191,7 +184,6 @@ mk_pipe (ltype,path) = do
   void $ forkIO $ forever $ do
     is_eof <- hIsEOF fd
     if is_eof then threadDelay 1000000 else get_line ltype fd
-{{</ highlight >}}
 ```
 
 The intersting bit in that function is the last 3 lines, where we create

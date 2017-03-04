@@ -17,13 +17,11 @@ since standard serializers don't support these types.
 What we want to do in ruby and clojure is simple:
 
 ```ruby
-{{< highlight ruby >}}
 require 'simple_uuid'
 require 'json'
 
 # This fails
 {:uuid => SimpleUUID::UUID.new }.to_json
-{{</ highlight >}}
 ```
 
 This code fails because the `json` module looks for a `to_json` method
@@ -32,14 +30,12 @@ this would work fine if `to_s` gave a good textual representation of a
 UUID, but it returns the byte array for that UUID.
 
 ```clojure
-{{< highlight clojure >}}
 (ns foo
  (:use clojure.data.json)
  (:import java.util.UUID))
 
 ; This fails
 (println (json-str {:uuid (UUID/randomUUID)}))
-{{</ highlight >}}
 ```
 
 In clojure we are informed that `java.util.UUID` doesn't respond to
@@ -52,7 +48,6 @@ How to fix this in ruby is no problem, and widely known, since the
 representation, it's as easy as:
 
 ```ruby
-{{< highlight ruby >}}
 require 'simple_uuid'
 require 'json'
 
@@ -65,14 +60,13 @@ module SimpleUUID
 end
 
 puts({:uuid => SimpleUUID::UUID.new}.to_json)
-{{</ highlight >}}
 ```
 
 This was simple enough, reopening the module then class is allowed - and
 to some extent, encouraged - in ruby. We just added a `to_json` method
 which is what the `JSON` module looks for when walking through objects.
 
-\#\# Fixing the problem in clojure
+### Fixing the problem in clojure
 
 clojure has the ability to provide so-called **protocols**, similar to
 java **interfaces**. Protocols are defined with `defprotocol` and
@@ -80,13 +74,11 @@ implemented anywhere. Here is the appropriate bit from
 `clojure.data.json`
 
 ```clojure
-{{< highlight clojure >}}
 ;;; JSON PRINTER
 
 (defprotocol Write-JSON
   (write-json [object out escape-unicode?]
               "Print object to PrintWriter out as JSON"))
-{{</ highlight >}}
 ```
 
 This defines that `write-json` will be dispatched based on class to an
@@ -107,7 +99,6 @@ their first argument, here the function takes two additional arguments
 Following that logic, the implementation can now be written like this:
 
 ```clojure
-{{< highlight clojure >}}
 (ns somewhere
   (:import java.util.UUID)
   (:use clojure.data.json))
@@ -120,7 +111,6 @@ Following that logic, the implementation can now be written like this:
   {:write-json write-json-uuid})
 
 (println (json-str {:uuid (UUID/randomUUID)}))
-{{</ highlight >}}
 ```
 
 ### Writing the protocol extension
@@ -129,10 +119,8 @@ The actual function `write-json-uuid` is quite simple, I initially wrote
 it as:
 
 ```clojure
-{{< highlight clojure >}}
 (defn write-json-uuid [obj out escape-unicode?]
   (.print out (pr-str (.toString obj))))
-{{</ highlight >}}
 ```
 
 But it seems a bit overkill to go to the trouble of writing to a string,

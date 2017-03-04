@@ -16,7 +16,6 @@ The graylog2 extension mechanism is a good example of this, the bulk of
 which is really simple:
 
 ```ruby
-{{< highlight ruby >}}
 def _call(env)
   begin
     # Call the app we are monitoring
@@ -29,7 +28,6 @@ def _call(env)
     raise
   end
 end
-{{</ highlight >}}
 ```
 
 All the code does is wrap application call in an exception catching
@@ -54,7 +52,6 @@ Let's say we have a simple function interacting with a library, taking a
 map as parameter, yielding an operation status map back:
 
 ```clojure
-{{< highlight clojure >}}
 (defn send-command
   "send a command"
   [payload]
@@ -62,7 +59,6 @@ map as parameter, yielding an operation status map back:
      serialize     ; translate into a format for on-wire
      send-sync     ; send command and wait for answer
      deserialize)) ; translate result back as map
-{{</ highlight >}}
 ```
 
 Now let's say we need the following filters:
@@ -74,7 +70,6 @@ Now let's say we need the following filters:
 The functions are easy to write:
 
 ```clojure
-{{< highlight clojure >}}
 (defn filter-required [payload]
   (let [required [:user :operation]] 
     (when (some nil? (map payload required))
@@ -90,20 +85,17 @@ The functions are easy to write:
         response    (send-command payload)
         end-ts      (System/nanoTime)]
     (merge response {:elapsed (- end-ts start-ts)})))
-{{</ highlight >}}
 ```
 
 Now all that is required is linking those functions together. A very
 naive approach would be to go the imperative way, with let:
 
 ```clojure
-{{< highlight clojure >}}
 (defn linking-wrappers [payload]
   (let [payload  (filter-required payload)
         payload  (filter-defaults payload)
         response (time-command payload)]
     response))
-{{</ highlight >}}
 ```
 
 ### Evolving towards a wrapper interface
@@ -113,10 +105,8 @@ is just threading the payload through functions. Clojure even has a nice
 macro that does just that.
 
 ```clojure
-{{< highlight clojure >}}
 (defn composing-wrappers [payload]
   (-> payload filter-required filter-defaults time-command))
-{{</ highlight >}}
 ```
 
 This is already very handy, but needs a bit of work when we want to move
@@ -138,7 +128,6 @@ clojure would involve returning a function wrapping the original call,
 which is exactly what has been done for ring[^5], by the way:
 
 ```clojure
-{{< highlight clojure >}}
 (defn filter-required [handler]
   (fn [payload]
     (let [required [:user :operation]] 
@@ -157,19 +146,16 @@ which is exactly what has been done for ring[^5], by the way:
           response    (handler payload)
           end-ts      (System/nanoTime)]
       (merge response {:elapsed (- end-ts start-ts)}))))
-{{</ highlight >}}
 ```
 
 Reusing the threading operator, building the composed handler is now
 dead easy:
 
 ```clojure
-{{< highlight clojure >}}
 (def composed (-> send-command
                   time-command
                   filter-defaults
                   filter-required))
-{{</ highlight >}}
 ```
 
 ### Tying it all together
@@ -185,23 +171,19 @@ We cannot apply to **-&gt;** since it is a macro, so we call **loop**
 and **recur** to the rescue:
 
 ```clojure
-{{< highlight clojure >}}
 (defn wrap-with [handler all-decorators]
   (loop [cur-handler  handler
          decorators   all-decorators]
     (if decorators
       (recur ((first decorators) cur-handler) (next decorators))
       cur-handler)))
-{{</ highlight >}}
 ```
 
 Or as **scottjad** noted:
 
 ```clojure
-{{< highlight clojure >}}
 (defn wrap-with [handler all-decorators]
   (reduce #(%2 %1) handler all-decorators))
-{{</ highlight >}}
 ```
 
 Now, you see this function has no knowledge at all of the logic of
@@ -209,10 +191,8 @@ handlers, making it very easy to reuse in a many places, writing
 composed functions is now as easy as:
 
 ```clojure
-{{< highlight clojure >}}
 (def wrapped-command
   (wrap-with send-command [time-command filter-defaults filter-required]))
-{{</ highlight >}}
 ```
 
 I hope this little walkthrough helps you navigate more easily through

@@ -68,11 +68,9 @@ subject. So I'll just go with a cheat sheet:
     is written
 
     ```clojure
-    {{< highlight clojure >}}
     (defmacro unless [test & exprs]
       `(if (not ~test)
         (do ~@exprs)))
-    {{</ highlight >}}
     ```
 
     Short but dense! The code reads like this:
@@ -89,13 +87,11 @@ Building on our previous function **wrap-with**, we can then help people
 write wrapper functions more easily:
 
 ```clojure
-{{< highlight clojure >}}
 (defmacro defwrapper [wrapper-name handler bindings & exprs]
   `(def ~wrapper-name
     (fn [~handler]
       (fn ~bindings
         (do ~@exprs)))))
-{{</ highlight >}}
 ```
 
 This is somewhat inelegant since we still need to supply a symbol which
@@ -103,7 +99,6 @@ is going to be bound to the handler. We can wrap it up using our
 previous function:
 
 ```clojure
-{{< highlight clojure >}}
 (defn to-be-wrapped [payload]
   (assoc payload :reply :ok))
 
@@ -111,7 +106,6 @@ previous function:
   (handler (assoc payload :foo :bar)))
 
 (wrap-with to-be-wrapped [wrap-add-foo])
-{{</ highlight >}}
 ```
 
 ### Room for improvement
@@ -120,7 +114,6 @@ Now let's play a bit of magic, how about creating a macro which rebinds
 a symbol altogether:
 
 ```clojure
-{{< highlight clojure >}}
 (defmacro wrap-around [handler bindings & exprs]
   `(let [x#    ~handler
          meta#  (meta (var ~handler))]
@@ -129,7 +122,6 @@ a symbol altogether:
          (let [~handler x#] 
            (do ~@exprs))))
      (alter-meta! (var ~handler) merge meta#)))
-{{</ highlight >}}
 ```
 
 Notice the last call to alter-meta![^4] which preserves the initial
@@ -137,7 +129,6 @@ var's metadata, such as **:tag** or **:arglists**. Now here are the
 macros in context:
 
 ```clojure
-{{< highlight clojure >}}
 (wrap-around send-command [payload]
   (send-command (assoc payload :foo :bar)))
 
@@ -145,7 +136,6 @@ macros in context:
 (wrap-around send-command [payload]
   (let [start (System/nanoTime)]
     (assoc (send-command payload) (- (System/nanoTime) start))))
-{{</ highlight >}}
 ```
 
 ### Closing words

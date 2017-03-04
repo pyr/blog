@@ -2,7 +2,7 @@
 #+date: 2014-01-26
 
 In a [previous
-article](http://spootnik.org/entries/2013/05/30_neat-trick-using-puppet-as-your-internal-ca.html),
+article](/entries/2013/05/30/neat-trick-using-puppet-as-your-internal-ca),
 I tried to make the case for using a private certificate authority to
 authenticate access to internal tools with SSL client certificates.
 
@@ -21,7 +21,7 @@ I will be assuming a private CA authenticates clients for sites
 accessing `app.priv.example.com` and that three SSL client certificates
 exist: `alice.users.example.com`, `bob.users.example.com`,
 `charlie.users.example.com` (as mentionned above, see
-[here](http://spootnik.org/entries/2013/05/30_neat-trick-using-puppet-as-your-internal-ca.html)
+[here](/entries/2013/05/30/neat-trick-using-puppet-as-your-internal-ca)
 for a quick way to get up and running).
 
 Now since our certificates bear the names of clients what we need to do

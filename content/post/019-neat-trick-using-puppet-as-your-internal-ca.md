@@ -171,7 +171,6 @@ lets give them each a certificate and one for each service we will
 run.
 
 ```bash
-{{< highlight bash >}}
 for admin in alice bob charlie; do
 puppet cert --configdir /etc/ssl-ca generate ${admin}.users.priv.example.com
 done
@@ -180,7 +179,6 @@ for service in doc build graph; do
 puppet cert --configdir /etc/ssl-ca generate ${service}.priv.example.com
 done
 
-{{</ highlight >}}
 ```
 
 Your users now all have a valid certificate. Two steps remain: using
@@ -222,7 +220,6 @@ name of the generated user's certificate and a password, adapt to your
 liking:
 
 ```bash
-{{< highlight bash >}}
 #!/bin/sh
 
 name=$1
@@ -235,7 +232,6 @@ mkdir -p $ssl_dir/pkcs12
 openssl pkcs12 -export -in $ssl_dir/certs/$full_name.pem -inkey         \
   $ssl_dir/private_keys/$full_name.pem -certfile $ssl_dir/ca/ca_crt.pem \
   -out $ssl_dir/pkcs12/$full_name.p12 -passout pass:$password
-{{</ highlight >}}
 ```
 
 The resulting file can be handed over to your staff who will then

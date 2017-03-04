@@ -49,7 +49,6 @@ Beware that once the state limit is reached, no new states will be allowed to ke
 As a bonus, here is a simple github gist which implements statistics collection for collectd, allowing you to graph state consumption and alert when the limit is nearly reached.
 
 #+BEGIN_SRC c
-{{< highlight c >}}
 /*
  * Copyright (c) 2010 Pierre-Yves Ritschard <pyr@openbsd.org>
  *
@@ -185,6 +184,5 @@ void module_register(void) {
     plugin_register_read("pf", pf_read);
 }
 #endif
-{{</ highlight >}}
 #+END_SRC
 

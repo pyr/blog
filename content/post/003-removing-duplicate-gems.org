@@ -4,13 +4,11 @@
 Found myself typing this in a shell:
 
 #+BEGIN_SRC bash
-{{< highlight bash >}}
 gem list --local |\
    egrep '.*(.*,.*)' |\
    sed 's/^\([^ ]*\) ([^,]*,\(.*\))/\1\2/' |\
    sed 's/,//g' |\
    awk '{for (i = 2; i &lt;=NF ;i++) {printf "sudo gem uninstall %s --version=%s\n", $1, $i}}'
-{{</ highlight >}}
 #+END_SRC
 
 Sometimes perl or ruby with -e is just faster

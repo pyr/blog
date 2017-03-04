@@ -56,20 +56,17 @@ server:
     Here is how to push items on a queue named `my_queue`:
 
     ```bash
-	{{< highlight bash >}}
     redis 127.0.0.1:6379> LPUSH my_queue first
     (integer) 1
     redis 127.0.0.1:6379> LPUSH my_queue second
     (integer) 2
     redis 127.0.0.1:6379> LPUSH my_queue third
     (integer) 3
-	{{</ highlight >}}
     ```
 
     You can now subsequently issue the following command to pop items:
 
     ```bash
-	{{< highlight bash >}}
     redis 127.0.0.1:6379> BRPOP my_queue 0
     1) "my_queue"
     2) "first"
@@ -79,7 +76,6 @@ server:
     redis 127.0.0.1:6379> BRPOP my_queue 0
     1) "my_queue"
     2) "third"
-	{{</ highlight >}}
     ```
 
     LPUSH as its name implies pushes items on the left (head) of a list,
@@ -98,33 +94,27 @@ server:
     need to open two clients, start by issuing this in the first:
 
     ```bash
-	{{< highlight bash >}}
     redis 127.0.0.1:6379> SUBSCRIBE my_exchange
     Reading messages... (press Ctrl-C to quit)
     1) "subscribe"
     2) "my_hub"
     3) (integer) 1
-	{{</ highlight >}}
     ```
 
     You are now listening on the `my_exchange` exchange, issue the
     following in the second terminal:
 
     ```bash
-	{{< highlight bash >}}
     redis 127.0.0.1:6379> PUBLISH my_exchange hey
     (integer) 1
-	{{</ highlight >}}
     ```
 
     You'll now see this in the first terminal:
 
     ```bash
-	{{< highlight bash >}}
     1) "message"
     2) "my_hub"
     3) "hey"
-	{{</ highlight >}}
     ```
 
 3.  Differences between queues and pub-sub
@@ -155,7 +145,6 @@ If we model this around `JSON`, we can thus work with the following
 payloads, starting with requests:
 
 ```javascript
-{{< highlight javascript >}}
 request = {
   reply_to: "51665ac9-bab5-4995-aa80-09bc79cfb2bd",
   match: {
@@ -175,39 +164,33 @@ request = {
     }
   }
 }
-{{</ highlight >}}
 ```
 
 `START` responses would then use the following format:
 
 ```javascript
-{{< highlight javascript >}}
 response = {
   in_reply_to: "51665ac9-bab5-4995-aa80-09bc79cfb2bd",
   uuid: "5b4197bd-a537-4cc7-972f-d08ea5760feb",
   hostname: "www01.example.com",
   status: "start"
 }
-{{</ highlight >}}
 ```
 
 `NOOP` responses would drop the sequence UUID not needed:
 
 ```javascript
-{{< highlight javascript >}}
 response = {
   in_reply_to: "51665ac9-bab5-4995-aa80-09bc79cfb2bd",
   hostname: "www01.example.com",
   status: "noop"
 }
-{{</ highlight >}}
 ```
 
 Finally, `COMPLETE` responses would include the result of command
 execution:
 
 ```javascript
-{{< highlight javascript >}}
 response = {
   in_reply_to: "51665ac9-bab5-4995-aa80-09bc79cfb2bd",
   uuid: "5b4197bd-a537-4cc7-972f-d08ea5760feb",
@@ -221,7 +204,6 @@ response = {
     load_averages: [ 0.06, 0.10, 0.13 ]
   }
 }
-{{</ highlight >}}
 ```
 
 We essentially end up with an architecture where each node is a daemon
@@ -241,27 +223,23 @@ Here is a stock ruby snippet, gem which performs signing with an SSH
 key, given a passphrase-less key.
 
 ```ruby
-{{< highlight ruby >}}
 require 'openssl'
 
 signature = File.open '/path/to/private-key' do |file|
   digest = OpenSSL::Digest::SHA1.digest("some text")
   OpenSSL::PKey::DSA.new(file).syssign(digest)
 end
-{{</ highlight >}}
 ```
 
 To verify a signature here is the relevant snippet:
 
 ```ruby
-{{< highlight ruby >}}
 require 'openssl'
 
 valid? = File.open '/path/to/private-key' do |file|
 
   OpenSSL::PKey::DSA.new(file).sysverify("some text", sig)
 end
-{{</ highlight >}}
 ```
 
 This implements the common scheme of signing a SHA1 digest with a DSA
@@ -283,7 +261,6 @@ things. Reading SSH keys meant pulling in the
 commons-codec lib for base64:
 
 ```clojure
-{{< highlight clojure >}}
 (import '[java.security                   Signature Security KeyPair]
         '[org.bouncycastle.jce.provider   BouncyCastleProvider]
         '[org.bouncycastle.openssl        PEMReader]
@@ -315,7 +292,6 @@ commons-codec lib for base64:
         (.initVerify (:public keypair))
         (.update (.getBytes str)))
       (.verify (-> signature Base64/decodeBase64))))
-{{</ highlight >}}
 ```
 
 Redis support has several options, I used the `jedis` Java library which
@@ -335,21 +311,17 @@ If you just want to try out, you can fetch the `amiral` gem in ruby, and
 start an agent like so:
 
 ```bash
-{{< highlight bash >}}
 $ amiral.rb -k /path/to/privkey agent
-{{</ highlight >}}
 ```
 
 You can then test querying the agent through a controller:
 
 ```bash
-{{< highlight bash >}}
 $ amiral.rb -k /path/to/privkey controller uptime
 accepting acknowledgements for 2 seconds
 got 1/1 positive acknowledgements
 got 1/1 responses
 phoenix.spootnik.org: 09:06:15 up 5 days, 10:48, 10 users,  load average: 0.08, 0.06, 0.05
-{{</ highlight >}}
 ```
 
 If you're feeling adventurous you can now start the clojure controller,
@@ -357,13 +329,11 @@ it's configuration is relatively straightforward, but a bit more
 involved since it's part of an IRC + HTTP bot framework:
 
 ```clojure
-{{< highlight clojure >}}
 {:transports {amiral.transport.HTTPTransport {:port 8080}
               amiral.transport.irc/create    {:host "irc.freenode.net"
                                               :channel "#mychan"}}
  :executors {amiral.executor.fleet/create    {:keytype :dss
                                               :keypath "/path/to/key"}}}
-{{</ highlight >}}
 ```
 
 In that config we defined two ways of listening for incoming controller
@@ -373,7 +343,6 @@ something.
 You can now query your hosts through HTTP:
 
 ```bash
-{{< highlight bash >}}
 $ curl -XPOST -H 'Content-Type: application/json' -d '{"args":["uptime"]}' http://localhost:8080/amiral/fleet
 {"count":1,
  "message":"phoenix.spootnik.org: 09:40:57 up 5 days, 11:23, 10 users,  load average: 0.15, 0.19, 0.16",
@@ -387,7 +356,6 @@ $ curl -XPOST -H 'Content-Type: application/json' -d '{"args":["uptime"]}' http:
                      "averages":["0.15","0.19","0.16"],
                      "short":"09:40:57 up 5 days, 11:23, 10 users,  load average: 0.15, 0.19, 0.16"},
            "hostname":"phoenix.spootnik.org"}]}
-{{</ highlight >}}
 ```
 
 Or on IRC:

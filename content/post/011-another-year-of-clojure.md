@@ -197,7 +197,6 @@ little time needed to dive into a part written by someone else.
     these (simplified):
 
     ```clojure
-	{{< highlight clojure >}}
     (defentity :contributors
       (column :identifier (primary-key))
       (column :type (required))
@@ -213,7 +212,6 @@ little time needed to dive into a part written by someone else.
       (has-many :articles)
       (has-many :editions (referenced false) (ttl 172800))
       (has-many :posts (key (timestamp :published_at)) (referenced false)))
-	{{</ highlight >}}
     ```
 
     The power of DSLs in clojure cannot be understated, with a few
@@ -225,12 +223,10 @@ little time needed to dive into a part written by someone else.
     (simplified):
 
     ```clojure
-	{{< highlight clojure >}}
     (defsiterule "some.obscure.site"
        [dom]
        (-> dom
            (pull "#stupid-article-id")))
-	{{</ highlight >}}
     ```
 
     The great part is that you limit the knowledge to be transfered over

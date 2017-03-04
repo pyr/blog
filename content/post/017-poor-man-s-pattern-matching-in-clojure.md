@@ -15,7 +15,6 @@ Take for instance an event stream which would contain homogenous records
 of with the following structure:
 
 ```clojure
-{{< highlight clojure >}}
 [{:user      "bob"
   :action    :create-ticket
   :status    :success
@@ -31,7 +30,6 @@ of with the following structure:
   :status    :success
   :message   "succeeded"
   :timestamp #inst "2013-05-23T18:19:41.623-00:00"}]
-{{</ highlight >}}
 ```
 
 Now, say you need do do a simple thing based on the output of the value
@@ -40,13 +38,11 @@ of both `:action` and `:status`.
 The first reflex would be to do this within a `for` or `doseq`:
 
 ```clojure
-{{< highlight clojure >}}
 (for [{:keys [action status] :as event}]
    (cond
      (and (= action :create-ticket) (= status :success)) (handle-cond-1 event)
      (and (= action :update-ticket) (= status :success)) (handle-cond-2 event)
      (and (= action :delete-ticket) (= status :failure)) (handle-cond-3 event)))
-{{</ highlight >}}
 ```
 
 This is a bit cumbersome. A first step would be to use the fact that
@@ -63,7 +59,6 @@ I suggest you play around with `juxt` on the repl to get comfortable
 with it, here is the example usage we're interested in:
 
 ```clojure
-{{< highlight clojure >}}
 (let [narrow-keys (juxt :action :status)]
    (narrow-keys {:user      "bob"
                  :action    :update-ticket
@@ -71,27 +66,23 @@ with it, here is the example usage we're interested in:
                  :message   "insufficient rights"
                  :timestamp #inst "2013-05-23T18:19:40.623-00:00"}))
  => [:update-ticket :failure]
-{{</ highlight >}}
 ```
 
 Given that function, we can now rewrite our condition handling code in a
 much more succint way:
 
 ```clojure
-{{< highlight clojure >}}
 (let [narrow-keys (juxt :action :status)]
   (for [event events]
     (case (narrow-keys event)
       [:create-ticket :success] (handle-cond-1 event)
       [:update-ticket :failure] (handle-cond-2 event)
       [:delete-ticket :success] (handle-cond-3 event))))
-{{</ highlight >}}
 ```
 
 Now with this method, we have a perfect candidate for a multimethod:
 
 ```clojure
-{{< highlight clojure >}}
 (defmulti handle-event (juxt :action :status))
 (defmethod handle-event [:create-ticket :success]
    [event]
@@ -102,7 +93,6 @@ Now with this method, we have a perfect candidate for a multimethod:
 (defmethod handle-event [:delete-ticket :success]
    [event]
    ...)
-{{</ highlight >}}
 ```
 
 Of course, for more complex cases and wildcard handling, I suggest

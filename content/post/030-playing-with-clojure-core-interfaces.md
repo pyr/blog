@@ -595,8 +595,7 @@ With this in place we can add metadata to our closures:
 ### Wrapping up
 
 All the bits are now in place, and the example code shown above works as
-expected. I've posted the output at
-<https://gist.github.com/618d49694df91710f1c2>.
+expected. I've posted the output [here](/files/2014-11-06-clojure-interfaces.html).
 
 I didn't publish a library on purpose since I don't think you should use
 this for any serious work, but it does make for an interesting
