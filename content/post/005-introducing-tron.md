@@ -13,7 +13,7 @@ replacing CRON's C which stands for command - as in: command run on - with a T f
 
 Here is a short excerpt of what it can do:
 
-```
+```clojure
 (ns sandbox
   (:require tron))
 
