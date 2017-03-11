@@ -1,5 +1,5 @@
 title = "Spootnik.org"
-baseURL = "http://spootnik.org/"
+baseURL = "https://spootnik.org/"
 languageCode = "en-us"
 PygmentsCodeFences = true
 pygmentsuseclasses = true
