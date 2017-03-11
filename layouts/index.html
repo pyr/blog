@@ -1,12 +1,12 @@
 {{ partial "header.html" . }}
 <header>
-  <h1>Pierre-Yves Ritschard</h1>
-  <h2>Random ramblings on infrastructure and functional development</h2>
+  <h1>{{ .Site.Author.name }}</h1>
+  <h2>{{ .Site.Params.Description }}</h2>
     <ul class="header-menu">
       <li><a href="https://github.com/pyr">Github</a></li>
       <li><a href="https://twitter.com/pyr">Twitter</a></li>
-      <li><a href="mailto:pyr@spootnik.org">Email</a></li>
-      <li><a href="/index.xml">Atom feed</a></li>
+      <li><a href="mailto:{{ .Site.Author.email }}">Email</a></li>
+      <li><a href="{{ .RSSLink }}">Feed</a></li>
     </ul>
 </header>
 

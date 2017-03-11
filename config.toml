@@ -1,10 +1,17 @@
 title = "Spootnik.org"
-baseURL = "http://spootnik.org/"
+baseURL = "https://spootnik.org/"
 languageCode = "en-us"
 PygmentsCodeFences = true
 pygmentsuseclasses = true
+rssLimit = 100
 
 [permalinks]
-post = "entries/:year/:month/:day/:slug"
+  post = "entries/:year/:month/:day/:slug"
 
+[author]
+  name = "Pierre-Yves Riʦchard"
+  email = "pyr@spootnik.org"
+
+[params]
+  description = "Random ramblings on infrastructure and functional development"
 
