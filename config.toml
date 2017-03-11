@@ -3,6 +3,7 @@ baseURL = "https://spootnik.org/"
 languageCode = "en-us"
 PygmentsCodeFences = true
 pygmentsuseclasses = true
+rssLimit = 100
 
 [permalinks]
 post = "entries/:year/:month/:day/:slug"
