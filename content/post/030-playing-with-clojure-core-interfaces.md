@@ -201,280 +201,280 @@ Fortunately, clojure provides transient versions of `sets`, `vectors`
 and `maps`. To coerce our redis connection instance we will need to
 implement a variety of interfaces described below.
 
-1.  Counted
+####  Counted
 
-    This protocol should be implemented by all types and provides a way
-    to yield the length of a collection.
+This protocol should be implemented by all types and provides a way
+to yield the length of a collection.
 
-    ```java
-    public interface Counted {
-      int count();
-    }
-    ```
+```java
+public interface Counted {
+    int count();
+}
+```
 
-2.  Seqable
+#### Seqable
 
-    This protocol is implemented by any datastructure which can be
-    coerced to a seq:
+This protocol is implemented by any datastructure which can be
+coerced to a seq:
 
-    ```java
-    public interface ISeq {
-      ISeq seq();
-    }
-    ```
+```java
+public interface ISeq {
+  ISeq seq();
+}
+```
 
-    When calling `seq` on a map, it is expected to receive a list of
-    `IMapEntry` structures as defined in the following interface:
+When calling `seq` on a map, it is expected to receive a list of
+`IMapEntry` structures as defined in the following interface:
 
-    ```java
-    public interface IMapEntry extends Map.Entry{
-      Object key();
-      Object val();
-    }
-    ```
+```java
+public interface IMapEntry extends Map.Entry{
+  Object key();
+  Object val();
+}
+```
 
-    Map entries also happen to implement `Counted`, `Indexed` (see
-    below) and `Seqable`. This is the protocol that allows you to write:
+Map entries also happen to implement `Counted`, `Indexed` (see
+below) and `Seqable`. This is the protocol that allows you to write:
 
-    ```clojure
-    (map key {:a 0 :b 1})
-    ```
+```clojure
+(map key {:a 0 :b 1})
+```
 
-3.  Indexed
+#### Indexed
 
-    This protocol allows lookup in collections with
-    [`nth`](http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/nth):
+This protocol allows lookup in collections with
+[`nth`](http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/nth):
 
-    ```java
-    public interface Indexed extends Counted{
-      Object nth(int i);
-      Object nth(int i, Object notFound);
-    }
-    ```
+```java
+public interface Indexed extends Counted{
+  Object nth(int i);
+  Object nth(int i, Object notFound);
+}
+```
 
-4.  ITransientVector
+#### ITransientVector
 
-    Much like `ITransientAssociative`, `ITransientVector` gives a way to
-    mutate on vector like structures:
+Much like `ITransientAssociative`, `ITransientVector` gives a way to
+mutate on vector like structures:
 
-    ```java
-    public interface ITransientVector extends ITransientAssociative, Indexed{
-      ITransientVector assocN(int i, Object val);
-      ITransientVector pop();
-    }
-    ```
+```java
+public interface ITransientVector extends ITransientAssociative, Indexed{
+  ITransientVector assocN(int i, Object val);
+  ITransientVector pop();
+}
+```
 
-5.  ITransientSet
+#### ITransientSet
 
-    `ITransientSet` completes the list of transient collections
+`ITransientSet` completes the list of transient collections
 
-    ```java
-    public interface ITransientSet extends ITransientCollection, Counted{
-      public ITransientSet disjoin(Object key) ;
-        public boolean contains(Object key);
-        public Object get(Object key);
-    }
-    ```
+```java
+public interface ITransientSet extends ITransientCollection, Counted{
+  public ITransientSet disjoin(Object key) ;
+	public boolean contains(Object key);
+	public Object get(Object key);
+}
+```
 
 ### Redis Operations
 
 Let's now look at how the redis world can be mapped to the clojure
 world.
 
-1.  Redis Instance
+####  Redis Instance
 
-    The global redis instance can be seen as a map, just like in our
-    first example. If we want it to implement `Seqable` and `Counted`,
-    there is no other choice but to issue the redis command `KEYS *` and
-    count the results for `Counted` or map them to clojure values for
-    `Seqable`.
+The global redis instance can be seen as a map, just like in our
+first example. If we want it to implement `Seqable` and `Counted`,
+there is no other choice but to issue the redis command `KEYS *` and
+count the results for `Counted` or map them to clojure values for
+`Seqable`.
 
-    We have already seen how to implement `ILookup` and `ITransientMap`
-    above, but we'll add a twist, when creating values, instead of
-    always using the `SET` command, we can look at the type of value
-    we're fed with
-    [set?](http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/set?),
-    [map?](http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/map?)
-    and
-    [sequential?](http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/sequential?)
-    to create matching types in redis (`set`, `hash` or `list`) while
-    still defaulting to string keys.
+We have already seen how to implement `ILookup` and `ITransientMap`
+above, but we'll add a twist, when creating values, instead of
+always using the `SET` command, we can look at the type of value
+we're fed with
+[set?](http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/set?),
+[map?](http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/map?)
+and
+[sequential?](http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/sequential?)
+to create matching types in redis (`set`, `hash` or `list`) while
+still defaulting to string keys.
 
-    Likewise, when retrieving keys, we can use the redis `TYPE` command
-    to lookup the key type and yield a transient vector, map or set when
-    we encounter the matching redis types.
+Likewise, when retrieving keys, we can use the redis `TYPE` command
+to lookup the key type and yield a transient vector, map or set when
+we encounter the matching redis types.
 
-    `without` does not need to change, since it works on any key type.
+`without` does not need to change, since it works on any key type.
 
-    This gives us and updated `instance->transient`:
+This gives us and updated `instance->transient`:
 
-    ```clojure
-    clojure.lang.ILookup
-    (valAt [this k]
-      (let [k    (pr-str k)
-            type (wcar spec (r/type k))]
-        (condp = type
-          "string" (read-string (wcar spec (r/get k)))
-          "hash"   (hash->transient spec k)
-          "list"   (list->transient spec k)
-          "set"    (set->transient spec k)
-          "none"   nil
-          (throw (ex-info "unsupported redis type" {:type type})))))
-    clojure.lang.ITransientMap
-    (assoc [this k v]
-      (let [k (pr-str k)]
-        (cond
-         (set? v)        (doseq [member v]    ;; Call SADD on all members
-                           (wcar spec (r/sadd k (pr-str member))))
-         (map? v)        (doseq [[subk v] v]  ;; Call HSET on all entries
-                           (wcar spec (r/hset k (pr-str subk) (pr-str v))))
-         (sequential? v) (doseq [e v]         ;; Call LPUSH on all entries
-                           (wcar spec (r/lpush k (pr-str e))))
-          ;; Default to a plain SET
-         :else           (wcar spec (r/set k (pr-str v)))))
-      this)
-    ```
+```clojure
+clojure.lang.ILookup
+(valAt [this k]
+  (let [k    (pr-str k)
+		type (wcar spec (r/type k))]
+	(condp = type
+	  "string" (read-string (wcar spec (r/get k)))
+	  "hash"   (hash->transient spec k)
+	  "list"   (list->transient spec k)
+	  "set"    (set->transient spec k)
+	  "none"   nil
+	  (throw (ex-info "unsupported redis type" {:type type})))))
+clojure.lang.ITransientMap
+(assoc [this k v]
+  (let [k (pr-str k)]
+	(cond
+	 (set? v)        (doseq [member v]    ;; Call SADD on all members
+					   (wcar spec (r/sadd k (pr-str member))))
+	 (map? v)        (doseq [[subk v] v]  ;; Call HSET on all entries
+					   (wcar spec (r/hset k (pr-str subk) (pr-str v))))
+	 (sequential? v) (doseq [e v]         ;; Call LPUSH on all entries
+					   (wcar spec (r/lpush k (pr-str e))))
+	  ;; Default to a plain SET
+	 :else           (wcar spec (r/set k (pr-str v)))))
+  this)
+```
 
-    As explained above we can now also implement `Counted` and
-    `Seqable`:
+As explained above we can now also implement `Counted` and
+`Seqable`:
 
-    ```clojure
-    clojure.lang.Counted
-    (count [this]
-      (count (wcar spec (r/keys "*"))))
-    clojure.lang.Seqable
-    (seq [this]
-      (let [keys (wcar spec (r/keys "*"))]
-        (for [k keys]
-          (->mapentry (read-string k) (.valAt this (read-string k))))))
-    ```
+```clojure
+clojure.lang.Counted
+(count [this]
+  (count (wcar spec (r/keys "*"))))
+clojure.lang.Seqable
+(seq [this]
+  (let [keys (wcar spec (r/keys "*"))]
+	(for [k keys]
+	  (->mapentry (read-string k) (.valAt this (read-string k))))))
+```
 
-    Beware that calling `KEYS *` is very suboptimal and should not be
-    done in real life scenarios.
+Beware that calling `KEYS *` is very suboptimal and should not be
+done in real life scenarios.
 
-    We're also missing the `->mapentry` function above, which can be
-    simply be:
+We're also missing the `->mapentry` function above, which can be
+simply be:
 
-    ```clojure
-    (defn ->mapentry
-      [k v]
-      (reify
-        clojure.lang.Indexed
-        (nth [this i]         (nth [k v] i))     ;; carry over
-        (nth [this i def]     (nth [k v] i def)) ;; carry over to nth
-        clojure.lang.Seqable
-        (seq [this]           (list k v))        ;; we know all elems
-        clojure.lang.Counted
-        (count [this]         2)                 ;; always two elems
-        clojure.lang.IMapEntry
-        (getKey [this]        k)                 ;; IMapEntry extends Map.Entry
-        (getValue [this]      v)                 ;;
-        (key [this]           k)                 
-        (val [this]           v)))
-    ```
+```clojure
+(defn ->mapentry
+  [k v]
+  (reify
+	clojure.lang.Indexed
+	(nth [this i]         (nth [k v] i))     ;; carry over
+	(nth [this i def]     (nth [k v] i def)) ;; carry over to nth
+	clojure.lang.Seqable
+	(seq [this]           (list k v))        ;; we know all elems
+	clojure.lang.Counted
+	(count [this]         2)                 ;; always two elems
+	clojure.lang.IMapEntry
+	(getKey [this]        k)                 ;; IMapEntry extends Map.Entry
+	(getValue [this]      v)                 ;;
+	(key [this]           k)                 
+	(val [this]           v)))
+```
 
-2.  Redis Hashes
+#### Redis Hashes
 
-    Redis hashes will implement the same interfaces than redis
-    instances: `ILookup`, `ITransientMap`, `Counted` and `Seqable`. The
-    logic will closely resemble our initial version. Lookups will be
-    done using `HGET`, removals with `HDEL`. To count elements or coerce
-    a hash to a seq, we can count on the `HGETALL` command which yields
-    a list containing keys and values. Since the output list is
-    flattened we can use `(partition 2)` to obtain the desired
-    structure:
+Redis hashes will implement the same interfaces than redis
+instances: `ILookup`, `ITransientMap`, `Counted` and `Seqable`. The
+logic will closely resemble our initial version. Lookups will be
+done using `HGET`, removals with `HDEL`. To count elements or coerce
+a hash to a seq, we can count on the `HGETALL` command which yields
+a list containing keys and values. Since the output list is
+flattened we can use `(partition 2)` to obtain the desired
+structure:
 
-    ```clojure
-    (defn hash->transient
-      [spec k]
-      (reify
-        clojure.lang.ILookup
-        (valAt [this subk]
-          (when-let [res (wcar spec (r/hget k (pr-str subk)))]
-            (read-string res)))
-        (valAt [this subk default]
-          (or (.valAt this subk) default))
-        clojure.lang.ITransientMap
-        (assoc [this subk v]
-          (wcar spec (r/hset k (pr-str subk) (pr-str v)))
-          this)
-        (without [this subk]
-          (wcar spec (r/hdel k (pr-str subk)))
-          this)
-        clojure.lang.Counted
-        (count [this]
-          (count (partition 2 (wcar spec (r/hgetall k)))))
-        clojure.lang.Seqable
-        (seq [this]
-          (for [[k v] (partition 2 (wcar spec (r/hgetall k)))]
-            (->mapentry (read-string k)
-                        (read-string v))))))
-    ```
+```clojure
+(defn hash->transient
+  [spec k]
+  (reify
+	clojure.lang.ILookup
+	(valAt [this subk]
+	  (when-let [res (wcar spec (r/hget k (pr-str subk)))]
+		(read-string res)))
+	(valAt [this subk default]
+	  (or (.valAt this subk) default))
+	clojure.lang.ITransientMap
+	(assoc [this subk v]
+	  (wcar spec (r/hset k (pr-str subk) (pr-str v)))
+	  this)
+	(without [this subk]
+	  (wcar spec (r/hdel k (pr-str subk)))
+	  this)
+	clojure.lang.Counted
+	(count [this]
+	  (count (partition 2 (wcar spec (r/hgetall k)))))
+	clojure.lang.Seqable
+	(seq [this]
+	  (for [[k v] (partition 2 (wcar spec (r/hgetall k)))]
+		(->mapentry (read-string k)
+					(read-string v))))))
+```
 
-3.  Redis Sets
+#### Redis Sets
 
-    Redis sets are very similar to hashes. Additions to the set are done
-    with `SADD`, deletions with `SREM`, we have an efficient way of
-    counting the set with `SCARD`. `SISMEMBER` will tell us if we have a
-    matching member in our set (it returns either 0 or 1, so we need to
-    coerce it to a boolean with `pos?`). Last, `SMEMBERS` will help in
-    implementing `seq`:
+Redis sets are very similar to hashes. Additions to the set are done
+with `SADD`, deletions with `SREM`, we have an efficient way of
+counting the set with `SCARD`. `SISMEMBER` will tell us if we have a
+matching member in our set (it returns either 0 or 1, so we need to
+coerce it to a boolean with `pos?`). Last, `SMEMBERS` will help in
+implementing `seq`:
 
-    ```clojure
-    (defn set->transient
-      [spec k]
-      (reify
-        clojure.lang.Counted
-        (count [this]
-          (wcar spec (r/scard k)))
-        clojure.lang.Seqable
-        (seq [this]
-          (map read-string (wcar spec (r/smembers k))))
-        clojure.lang.ITransientCollection
-        (conj [this v]
-          (wcar spec (r/sadd k (pr-str v)))
-          this)
-        clojure.lang.ITransientSet
-        (disjoin [this v]
-          (wcar spec (r/srem k (pr-str v)))
-          this)
-        (contains [this v]
-          (let [member (wcar spec (r/sismember k (pr-str v)))]
-            (pos? member)))
-        (get [this v]
-          (when (.contains this v)
-            v))))
-    ```
+```clojure
+(defn set->transient
+  [spec k]
+  (reify
+	clojure.lang.Counted
+	(count [this]
+	  (wcar spec (r/scard k)))
+	clojure.lang.Seqable
+	(seq [this]
+	  (map read-string (wcar spec (r/smembers k))))
+	clojure.lang.ITransientCollection
+	(conj [this v]
+	  (wcar spec (r/sadd k (pr-str v)))
+	  this)
+	clojure.lang.ITransientSet
+	(disjoin [this v]
+	  (wcar spec (r/srem k (pr-str v)))
+	  this)
+	(contains [this v]
+	  (let [member (wcar spec (r/sismember k (pr-str v)))]
+		(pos? member)))
+	(get [this v]
+	  (when (.contains this v)
+		v))))
+```
 
-4.  Redis Lists
+#### Redis Lists
 
-    To finish off with our tour of structures, vectors and lists will be
-    mapped to redis lists. A list's length is reported by `LLEN`, we can
-    retrieve all members with `LRANGE 0 -1` while `LSET`, `LPOP` and
-    `LPUSH` will implement mutation operations:
+To finish off with our tour of structures, vectors and lists will be
+mapped to redis lists. A list's length is reported by `LLEN`, we can
+retrieve all members with `LRANGE 0 -1` while `LSET`, `LPOP` and
+`LPUSH` will implement mutation operations:
 
-    ```clojure
-    (defn list->transient
-      [spec k]
-      (reify
-        clojure.lang.Counted
-        (count [this]
-          (wcar spec (r/llen k)))
-        clojure.lang.Seqable
-        (seq [this]
-          (map read-string (wcar spec (r/lrange k 0 -1))))
-        clojure.lang.ITransientCollection
-        (conj [this v]
-          (wcar spec (r/lpush k (pr-str v)))
-          this)
-        clojure.lang.ITransientVector
-        (assocN [this index v]
-          (wcar spec (r/lset k index v))
-          this)
-        (pop [this]
-          (wcar spec (r/lpop k))
-          this)))
-    ```
+```clojure
+(defn list->transient
+  [spec k]
+  (reify
+	clojure.lang.Counted
+	(count [this]
+	  (wcar spec (r/llen k)))
+	clojure.lang.Seqable
+	(seq [this]
+	  (map read-string (wcar spec (r/lrange k 0 -1))))
+	clojure.lang.ITransientCollection
+	(conj [this v]
+	  (wcar spec (r/lpush k (pr-str v)))
+	  this)
+	clojure.lang.ITransientVector
+	(assocN [this index v]
+	  (wcar spec (r/lset k index v))
+	  this)
+	(pop [this]
+	  (wcar spec (r/lpop k))
+	  this)))
+```
 
 ### Behaving like functions
 
