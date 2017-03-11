@@ -6,6 +6,8 @@ pygmentsuseclasses = true
 rssLimit = 100
 
 [permalinks]
-post = "entries/:year/:month/:day/:slug"
+  post = "entries/:year/:month/:day/:slug"
 
-
+[author]
+  name = "Pierre-Yves Riʦchard"
+  email = "pyr@spootnik.org"
