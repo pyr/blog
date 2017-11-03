@@ -9,7 +9,7 @@ rssLimit = 100
   post = "entries/:year/:month/:day/:slug"
 
 [author]
-  name = "Pierre-Yves Riʦchard"
+  name = "Pierre-Yves Ritschard"
   email = "pyr@spootnik.org"
 
 [params]
