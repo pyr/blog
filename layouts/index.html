@@ -6,41 +6,17 @@
       <li><a href="https://github.com/pyr">Github</a></li>
       <li><a href="https://twitter.com/pyr">Twitter</a></li>
       <li><a href="mailto:{{ .Site.Author.email }}">Email</a></li>
-      <li><a href="{{ .RSSLink }}">Feed</a></li>
     </ul>
 </header>
 
 <div class="content">
   <h2>Articles</h2>
   <ul class="all">
-    {{ range .Data.Pages.ByPublishDate.Reverse}}
+    {{ $pagesToShow := where .Site.RegularPages "Type" "in" site.Params.mainSections }}
+    {{ range $pagesToShow.ByDate.Reverse }}
     {{ $link := .Permalink | relURL | replaceRE "^/" "" }}
     <li>{{ .Date.Format "2006-01-02" }}&nbsp;-&nbsp;<a href="{{ $link }}">{{ .Title }}</a></li>
     {{ end }}
-  </ul>
-
-  <h2>Open Source</h2>
-  <ul class="all">
-    <li>
-      <a href="http://pithos.io">pithos</a> (author) &ndash;
-      S3 compatible service on top of cassandra
-    </li>
-    <li>
-      <a href="https://github.com/pyr/cyanite">cyanite</a> (author) &ndash;
-      Cassandra storage for graphite
-    </li>
-    <li>
-      <a href="https://github.com/pyr/unilog">unilog</a> (author) &ndash;
-      Simple logback configuration for your clojure projects
-    </li>
-    <li>
-      <a href="https://github.com/collectd/collectd">collectd</a> (maintainer) &ndash;
-      System statistics collection
-    </li>
-    <li>
-      <a href="https://github.com/aphyr/riemann">riemann</a> (maintainer) &ndash;
-      Distributed systems monitoring
-    </li>
   </ul>
 </div>
 {{ partial "footer.html" . }}
